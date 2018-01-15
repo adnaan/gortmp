@@ -69,11 +69,13 @@ type RtmpNetStream struct {
 	asend_time     uint32             // 上一个音频的绝对时间戳
 	closed         bool               // 是否关闭
 	rtmpFile       *RtmpFile          // netstream write file
+	config         *config.Config
 }
 
-func newNetStream(conn *RtmpNetConnection, sh ServerHandler) (s *RtmpNetStream) {
+func newNetStream(conn *RtmpNetConnection, sh ServerHandler, config *config.Config) (s *RtmpNetStream) {
 	s = new(RtmpNetStream)
 	s.conn = conn
+	s.config = config
 	s.lock = new(sync.Mutex)
 	s.serverHandler = sh
 	//s.clientHandler = ch
@@ -266,7 +268,7 @@ func (s *RtmpNetStream) WriteVideo(w io.Writer, video *AVPacket, fileType int) (
 							Title:    tsFilename,
 						}
 
-						if s.rtmpFile.hls_segment_count >= uint32(config.HLSWindow) {
+						if s.rtmpFile.hls_segment_count >= uint32(s.config.HLSWindow) {
 							if err = s.rtmpFile.hls_playlist.UpdateInf(s.rtmpFile.hls_m3u8_name, s.rtmpFile.hls_m3u8_name+".tmp", inf); err != nil {
 								return
 							}
@@ -300,8 +302,8 @@ func (s *RtmpNetStream) WriteVideo(w io.Writer, video *AVPacket, fileType int) (
 				return
 			}
 
-			if config.HLSFragment > 0 {
-				s.rtmpFile.hls_fragment = config.HLSFragment * 1000
+			if s.config.HLSFragment > 0 {
+				s.rtmpFile.hls_fragment = s.config.HLSFragment * 1000
 			} else {
 				s.rtmpFile.hls_fragment = 10000
 			}
@@ -312,7 +314,7 @@ func (s *RtmpNetStream) WriteVideo(w io.Writer, video *AVPacket, fileType int) (
 				Targetduration: int(s.rtmpFile.hls_fragment / 666), // hlsFragment * 1.5 / 1000
 			}
 
-			s.rtmpFile.hls_path = config.HLSPath + "/" + strings.Split(s.streamPath, "/")[0]
+			s.rtmpFile.hls_path = s.config.HLSPath + "/" + strings.Split(s.streamPath, "/")[0]
 			s.rtmpFile.hls_m3u8_name = s.rtmpFile.hls_path + "/mystream.m3u8"
 
 			if !util.Exist(s.rtmpFile.hls_path) {
@@ -553,7 +555,7 @@ func (s *RtmpNetStream) msgLoopProc() {
 		}
 
 		// 调试模式下,打印各种消息
-		if config.DebugMode {
+		if s.config.DebugMode {
 			msgID := msg.Header().ChunkMessgaeHeader.MessageTypeID
 			if msgID == RTMP_MSG_AUDIO || msgID == RTMP_MSG_VIDEO {
 			} else {

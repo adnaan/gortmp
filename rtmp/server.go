@@ -5,8 +5,11 @@ import (
 	"log"
 	"net"
 	"runtime"
+	"strconv"
 	"sync"
 	"time"
+
+	"github.com/adnaan/gortmp/config"
 )
 
 var begintime time.Time
@@ -14,32 +17,29 @@ var begintime time.Time
 var handler ServerHandler = new(DefaultServerHandler)
 
 type Server struct {
-	Addr        string
 	Handler     ServerHandler
 	ReadTimeout time.Duration
 	WriteTimout time.Duration
 	Lock        *sync.Mutex
+	config      *config.Config
 }
 
-func ListenAndServe(addr string) error {
+func ListenAndServe(config *config.Config) error {
 	log.Println("listenAndServe")
 	s := Server{
-		Addr:        addr,                            // 服务器的IP地址和端口信息
 		Handler:     handler,                         // 请求处理函数的路由复用器
 		ReadTimeout: time.Duration(time.Second * 15), // timeout
 		WriteTimout: time.Duration(time.Second * 15), // timeout
-		Lock:        new(sync.Mutex)}                 // lock
+		Lock:        new(sync.Mutex),                 // lock
+		config:      config,
+	}
 	return s.ListenAndServer()
 }
 
 // golang http.ListenAndServer source code
 func (s *Server) ListenAndServer() error {
-	addr := s.Addr
-	if addr == "" {
-		addr = ":1935"
-	}
 
-	l, err := net.Listen("tcp", addr)
+	l, err := net.Listen("tcp", ":"+strconv.Itoa(s.config.RtmpPort))
 	if err != nil {
 		return err
 	}
@@ -169,5 +169,5 @@ func (s *Server) serve(rtmpNetConn *RtmpNetConnection) {
 	/* NetStream */
 
 	handler := s.Handler
-	newNetStream(rtmpNetConn, handler).msgLoopProc()
+	newNetStream(rtmpNetConn, handler, s.config).msgLoopProc()
 }
