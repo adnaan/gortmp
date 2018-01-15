@@ -1,8 +1,9 @@
 package rtmp
 
 import (
-	"../util"
 	"errors"
+
+	"github.com/adnaan/gortmp/util"
 	//"fmt"
 	"io"
 	//"reflect"

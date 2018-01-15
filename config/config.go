@@ -1,11 +1,12 @@
 package config
 
 import (
-	"../util"
 	"errors"
 	"os"
 	"strconv"
 	"strings"
+
+	"github.com/adnaan/gortmp/util"
 )
 
 var (

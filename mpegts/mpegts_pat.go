@@ -1,11 +1,12 @@
 package mpegts
 
 import (
-	"../util"
 	"bytes"
 	"errors"
 	"fmt"
 	"io"
+
+	"github.com/adnaan/gortmp/util"
 )
 
 // ios13818-1-CN.pdf 43(57)/166

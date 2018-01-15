@@ -1,7 +1,7 @@
 package avformat
 
 import (
-	"../util"
+	"github.com/adnaan/gortmp/util"
 )
 
 type MP4 interface {
@@ -1493,7 +1493,7 @@ type TrackFragmentRandomAccessTable struct {
 // ISO_IEC_14496-12_2012.pdf Page/71
 //
 // Box Type: mfro
-// Container: Movie Fragment Random Access Box (‘mfra’)
+// Container: Movie Fragment Random Access Box (‘mfra���)
 // Mandatory: Yes
 // Quantity: Exactly one
 //

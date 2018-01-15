@@ -1,12 +1,13 @@
 package hls
 
 import (
-	"../util"
 	"errors"
 	"fmt"
 	"os"
 	"strconv"
 	"strings"
+
+	"github.com/adnaan/gortmp/util"
 )
 
 const (

@@ -2,7 +2,7 @@ package rtmp
 
 import (
 	//"bufio"
-	"fmt"
+	"log"
 	"net"
 	"runtime"
 	"sync"
@@ -22,6 +22,7 @@ type Server struct {
 }
 
 func ListenAndServe(addr string) error {
+	log.Println("listenAndServe")
 	s := Server{
 		Addr:        addr,                            // 服务器的IP地址和端口信息
 		Handler:     handler,                         // 请求处理函数的路由复用器
@@ -66,7 +67,7 @@ func (s *Server) loop(listener net.Listener) error {
 				if max := 1 * time.Second; tempDelay > max {
 					tempDelay = max
 				}
-				fmt.Printf("rtmp: Accept error: %v; retrying in %v", err, tempDelay)
+				log.Printf("rtmp: Accept error: %v; retrying in %v", err, tempDelay)
 				time.Sleep(tempDelay)
 				continue
 			}
@@ -80,7 +81,7 @@ func (s *Server) loop(listener net.Listener) error {
 }
 
 func (s *Server) serve(rtmpNetConn *RtmpNetConnection) {
-
+	log.Println("serve")
 	begintime = time.Now()
 
 	/* Handshake */
@@ -106,7 +107,7 @@ func (s *Server) serve(rtmpNetConn *RtmpNetConnection) {
 
 	connect, ok := msg.(*ConnectMessage) // 收到 connect 消息
 	if !ok || connect.CommandName != "connect" {
-		fmt.Println("not recv rtmp connet message")
+		log.Println("not recv rtmp connet message")
 		rtmpNetConn.Close()
 		return
 	}
@@ -115,7 +116,7 @@ func (s *Server) serve(rtmpNetConn *RtmpNetConnection) {
 	if data != nil {
 		rtmpNetConn.appName, ok = data.(string)
 		if !ok {
-			fmt.Println("rtmp connet message <app> decode error")
+			log.Println("rtmp connet message <app> decode error")
 			rtmpNetConn.Close()
 			return
 		}
@@ -124,14 +125,14 @@ func (s *Server) serve(rtmpNetConn *RtmpNetConnection) {
 	// data = decodeAMFObject(connect.Object, "tcUrl") // url
 	// if data != nil {
 	// 	TcUrl := data.(string)
-	// 	fmt.Println("tcurl :", TcUrl)
+	// 	log.Println("tcurl :", TcUrl)
 	// }
 
 	data = decodeAMFObject(connect.Object, "objectEncoding") // AMF编码方法
 	if data != nil {
 		rtmpNetConn.objectEncoding, ok = data.(float64)
 		if !ok {
-			fmt.Println("rtmp connet message <objectEncoding> decode error")
+			log.Println("rtmp connet message <objectEncoding> decode error")
 			rtmpNetConn.Close()
 			return
 		}

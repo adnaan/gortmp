@@ -6,7 +6,7 @@ import (
 	"errors"
 	"fmt"
 
-	"../util"
+	"github.com/adnaan/gortmp/util"
 )
 
 // Action Message Format -- AMF 0

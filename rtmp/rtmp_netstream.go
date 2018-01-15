@@ -1,15 +1,17 @@
 package rtmp
 
 import (
-	"../avformat"
-	"../config"
-	"../hls"
-	"../mpegts"
-	"../util"
 	"bytes"
 	"fmt"
 	"io"
+	"log"
 	"os"
+
+	"github.com/adnaan/gortmp/avformat"
+	"github.com/adnaan/gortmp/config"
+	"github.com/adnaan/gortmp/hls"
+	"github.com/adnaan/gortmp/mpegts"
+	"github.com/adnaan/gortmp/util"
 	//"reflect"
 	"errors"
 	"strconv"
@@ -99,8 +101,8 @@ func (s *RtmpNetStream) SendVideo(video *AVPacket) error {
 	if s.vkfsended {
 		video.Timestamp -= s.vsend_time - uint32(s.bufferTime)
 		s.vsend_time += video.Timestamp
-		//fmt.Println("time stamp:", video.Timestamp)
-		//fmt.Println("video send time:", s.vsend_time)
+		//log.Println("time stamp:", video.Timestamp)
+		//log.Println("video send time:", s.vsend_time)
 		return sendMessage(s.conn, SEND_VIDEO_MESSAGE, video)
 	}
 
@@ -110,7 +112,7 @@ func (s *RtmpNetStream) SendVideo(video *AVPacket) error {
 
 	vTag := s.broadcast.publisher.videoTag // 从发布者发布的数据中,拿出视频Tag.
 	if vTag == nil {
-		fmt.Println("Video Tag nil")
+		log.Println("Video Tag nil")
 		return nil
 	}
 
@@ -251,7 +253,7 @@ func (s *RtmpNetStream) WriteVideo(w io.Writer, video *AVPacket, fileType int) (
 				if video.isKeyFrame() {
 					// 当前的时间戳减去上一个ts切片的时间戳
 					if int64(video.Timestamp-s.rtmpFile.vwrite_time) >= s.rtmpFile.hls_fragment {
-						//fmt.Println("time :", video.Timestamp, tsSegmentTimestamp)
+						//log.Println("time :", video.Timestamp, tsSegmentTimestamp)
 
 						tsFilename := strings.Split(s.streamPath, "/")[1] + "-" + strconv.FormatInt(time.Now().Unix(), 10) + ".ts"
 
@@ -320,7 +322,7 @@ func (s *RtmpNetStream) WriteVideo(w io.Writer, video *AVPacket, fileType int) (
 			}
 
 			if err = s.rtmpFile.hls_playlist.Init(s.rtmpFile.hls_m3u8_name); err != nil {
-				fmt.Println(err)
+				log.Println(err)
 				return
 			}
 
@@ -538,6 +540,7 @@ func (s *RtmpNetStream) Close() {
 // 4) Wait for a response from the ingest server. A response code of NetStream.Unpublish.Success indicates that the stream was successfully unpublished. The stream resources have been deallocated by the server, and the client can proceed to remove its local stream resources.
 
 func (s *RtmpNetStream) msgLoopProc() {
+	log.Println("msgLoopProc")
 	for {
 		msg, err := recvMessage(s.conn)
 		if err != nil {
@@ -554,7 +557,7 @@ func (s *RtmpNetStream) msgLoopProc() {
 			msgID := msg.Header().ChunkMessgaeHeader.MessageTypeID
 			if msgID == RTMP_MSG_AUDIO || msgID == RTMP_MSG_VIDEO {
 			} else {
-				fmt.Println(msg.String())
+				log.Println(msg.String())
 			}
 		}
 
@@ -617,7 +620,7 @@ func (s *RtmpNetStream) msgLoopProc() {
 			}
 		default:
 			{
-				fmt.Println("Other Message :", v)
+				log.Println("Other Message :", v)
 			}
 		}
 	}
@@ -633,7 +636,7 @@ func audioMessageHandle(s *RtmpNetStream, audio *AudioMessage) {
 		pkt.Timestamp = s.total_duration                                  // 当前时间戳(用绝对时间戳做当前音频包的时间戳)
 	}
 
-	//fmt.Println("recv audio time stamp:", pkt.Timestamp)
+	//log.Println("recv audio time stamp:", pkt.Timestamp)
 
 	pkt.Type = audio.RtmpHeader.ChunkMessgaeHeader.MessageTypeID
 	pkt.Payload = audio.RtmpBody.Payload
@@ -664,7 +667,7 @@ func videoMessageHandle(s *RtmpNetStream, video *VideoMessage) {
 	pkt.Type = video.RtmpHeader.ChunkMessgaeHeader.MessageTypeID
 	pkt.Payload = video.RtmpBody.Payload
 
-	//fmt.Println("recv video time stamp:", pkt.Timestamp)
+	//log.Println("recv video time stamp:", pkt.Timestamp)
 
 	// Video = Tag + Payload
 	// Video Tag (1 byte) == FrameType(4 bits) + CodecID(4 bits),发送为avc数据,所以CodecID为7.
@@ -757,7 +760,7 @@ func playMessageHandle(s *RtmpNetStream, plmsg *PlayMessage) error {
 		s.streamPath = s.conn.appName + "/" + strings.Split(plmsg.StreamName, "?")[0] // s.streamPath == myapp/mystream
 	}
 
-	fmt.Println("stream path:", s.streamPath)
+	log.Println("stream path:", s.streamPath)
 
 	s.conn.writeChunkSize = 512 //RTMP_MAX_CHUNK_SIZE
 	err := s.serverHandler.OnPlaying(s)
@@ -842,33 +845,33 @@ func decodeMetadataMessage(metadata *AVPacket) {
 		switch tt := v.(type) {
 		case string:
 			{
-				fmt.Println("string :", tt)
+				log.Println("string :", tt)
 			}
 		case []byte:
 			{
-				fmt.Println("[]byte :", tt)
+				log.Println("[]byte :", tt)
 			}
 		case byte:
 			{
-				fmt.Println("byte :", tt)
+				log.Println("byte :", tt)
 			}
 		case int:
 			{
-				fmt.Println("int :", tt)
+				log.Println("int :", tt)
 			}
 		case float64:
 			{
-				fmt.Println("float64 :", tt)
+				log.Println("float64 :", tt)
 			}
 		case AMFObjects:
 			{
 				for i, v1 := range tt {
-					fmt.Println(i, " : ", v1)
+					log.Println(i, " : ", v1)
 				}
 			}
 		default:
 			{
-				fmt.Println("default", tt)
+				log.Println("default", tt)
 			}
 		}
 	}

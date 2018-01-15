@@ -1,8 +1,8 @@
 package rtmp
 
 import (
-	//"../config"
-	//"../util"
+	//"github.com/adnaan/gortmp/config"
+	//"github.com/adnaan/gortmp/util"
 	"fmt"
 	//"strings"
 	//"os"

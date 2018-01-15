@@ -2,11 +2,11 @@ package main
 
 import (
 	//"./mpegts"
-	"./rtmp"
+	"github.com/adnaan/gortmp/rtmp"
 	//"fmt"
 	//"os"
 	//"./avformat"
-	"./config"
+	"github.com/adnaan/gortmp/config"
 )
 
 func main() {

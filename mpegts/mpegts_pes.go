@@ -1,13 +1,14 @@
 package mpegts
 
 import (
-	"../avformat"
-	"../util"
 	"bytes"
 	"errors"
 	"fmt"
 	"io"
 	"io/ioutil"
+
+	"github.com/adnaan/gortmp/avformat"
+	"github.com/adnaan/gortmp/util"
 )
 
 // ios13818-1-CN.pdf 45/166
@@ -82,7 +83,7 @@ type MpegTsOptionalPESHeader struct {
 	Mpeg1Mpeg2Identifier         byte     // 1 bit 1->指示此 PES 包承载来自 ISO/IEC 11172-1 流的信息.0->指示此 PES 包承载来自节目流的信息
 	OriginalStuffLength          byte     // 6 bits 在原始 ITU-T H.222.0 建议书| ISO/IEC 13818-1 PES 包头或在原始 ISO/IEC 11172-1 包头中所使用的填充字节数
 	PSTDBufferScale              byte     // 1bit 它的含义仅当节目流中包含此 PES 包时才规定.它指示所使用的标度因子用于解释后续的 P-STD_buffer_size 字段.若前导 stream_id 指示音频流,则P-STD 缓冲器标度字段必为"0"值.若前导 stream_id 指示视频流,则 P-STD_buffer_scale 字段必为"1"值.对于所有其他流类型,该值可为"1"或为"0"
-	PSTDBufferSize               uint16   // 13 bits 其含义仅当节目流中包含此 PES包时才规定.它规定在 P-STD 中,输入缓冲器 BSn 的尺寸.若 STD_buffer_scale 为 "0"值，则 P-STD_buffer_size以 128 字节为单位度量该缓冲器尺寸.若 P-STD_buffer_scale 为"1",则 P-STD_buffer_size 以 1024 字节为单位度量该缓冲器尺寸
+	PSTDBufferSize               uint16   // 13 bits 其含义仅当节目流中包含此 PES包时才规定.它规定在 P-STD 中,输入缓冲器 BSn 的尺寸.若 STD_buffer_scale ��� "0"值，则 P-STD_buffer_size以 128 字节为单位度量该缓冲器尺寸.若 P-STD_buffer_scale 为"1",则 P-STD_buffer_size 以 1024 字节为单位度量该缓冲器尺寸
 	PesExtensionFieldLength      byte     // 7 bits 指示 PES 扩展字段中跟随此长度字段的直至并包括任何保留字节为止的数据长度,以字节为度量单位
 	StreamIDExtensionFlag        byte     // 1 bits
 	//pesExtensionField              []byte   // PES_extension_field_length bits

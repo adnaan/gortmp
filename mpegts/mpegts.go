@@ -1,14 +1,15 @@
 package mpegts
 
 import (
-	"../rtmplog"
-	"../util"
 	"bytes"
 	"errors"
 	"fmt"
 	"io"
 	"io/ioutil"
 	"os"
+
+	"github.com/adnaan/gortmp/rtmplog"
+	"github.com/adnaan/gortmp/util"
 	//"sync"
 )
 

@@ -1,13 +1,14 @@
 package rtmp
 
 import (
-	"../avformat"
-	//"../config"
-	"../hls"
-	"../mpegts"
-	"../util"
+	"github.com/adnaan/gortmp/avformat"
+	//"github.com/adnaan/gortmp/config"
 	"bytes"
 	"errors"
+
+	"github.com/adnaan/gortmp/hls"
+	"github.com/adnaan/gortmp/mpegts"
+	"github.com/adnaan/gortmp/util"
 	//"fmt"
 	"io"
 	"os"
